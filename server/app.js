@@ -12,6 +12,8 @@ const { loginLimiter, generalLimiter } = require('../middlewares/rateLimiter');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 require('dotenv-safe').config();
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./config/swaggerConfig');
 
 /// Middleware setup
 app.use(express.json());
@@ -23,6 +25,7 @@ app.use(requestLogger);
 app.use(cookieParser());
 app.use(generalLimiter);
 app.use(helmet());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 // Error-handling middleware
 app.use((err, req, res, next) => {
