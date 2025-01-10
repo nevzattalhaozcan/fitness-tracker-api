@@ -13,7 +13,7 @@ const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 require('dotenv-safe').config();
 const swaggerUi = require('swagger-ui-express');
-const swaggerSpecs = require('./config/swaggerConfig');
+const swaggerSpecs = require('../config/swaggerConfig');
 
 /// Middleware setup
 app.use(express.json());
