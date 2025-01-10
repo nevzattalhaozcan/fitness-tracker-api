@@ -1,0 +1,41 @@
+{
+  "name": "fitnesstrackerapi",
+  "version": "1.0.0",
+  "description": "backend for a fitness tracker app",
+  "main": "app.js",
+  "scripts": {
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:file": "jest --coverage --findRelatedTests"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFiles": [
+      "dotenv-safe/config"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "-"
+  },
+  "author": "nevzattalhaozcan",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "dotenv-safe": "^9.1.0",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.13.1",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-mock": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}
