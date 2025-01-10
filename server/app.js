@@ -12,14 +12,6 @@ const { loginLimiter, generalLimiter } = require('../middlewares/rateLimiter');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 require('dotenv-safe').config();
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
 
 /// Middleware setup
 app.use(express.json());
