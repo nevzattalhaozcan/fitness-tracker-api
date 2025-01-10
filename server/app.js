@@ -44,7 +44,8 @@ app.use('/activity', activityRoutes);
 app.use('/workout-plan', workoutPlanRoutes);
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+//const PORT = process.env.PORT || 3000;
+const backend_server = 'https://fitness-tracker-api-x3cg.onrender.com'
 app.listen(PORT, () => {
-  logger.info(`Server running on http://localhost:${PORT}`);
+  logger.info(`Server running on ${backend_server}`);
 });

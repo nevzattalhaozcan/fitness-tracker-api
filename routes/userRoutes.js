@@ -46,6 +46,10 @@ router.post('/login', async (req, res) => {
     res.cookie('refreshToken', refreshToken, { httpOnly: true, secure: true, sameSite: 'strict', path: '/' });
     res.json({ accessToken, userRole: user.isAdmin ? 'admin' : 'user' });
   } catch (error) {
+    if (error.code === 'ECONNREFUSED') {
+      logger.error('Database connection refused:', error);
+      return res.status(500).json({ message: 'Database connection refused.' });
+    }
     logger.error('Login error:', error);
     res.status(500).json({ message: 'Server error.' });
   }
