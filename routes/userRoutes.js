@@ -8,7 +8,37 @@ const logger = require('../config/logger');
 const validateUserRegistrationInput = require('../utils/validations');
 require('dotenv').config();
 
-// Route: Register a new user
+/**
+ * @swagger
+ * /user/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               height:
+ *                 type: number
+ *               weight:
+ *                 type: number
+ *     responses:
+ *       201:
+ *         description: User registered
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Database error
+ */
 router.post('/register', async (req, res) => {
   const { name, email, password, height, weight } = req.body;
   const errors = validateUserRegistrationInput(name, email, password, height, weight);
@@ -28,7 +58,33 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Route: Login user and generate a token
+/**
+ * @swagger
+ * /user/login:
+ *   post:
+ *     summary: Login user and generate a token
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User logged in
+ *       400:
+ *         description: Email and password are required
+ *       401:
+ *         description: Invalid credentials
+ *       500:
+ *         description: Server error
+ */
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -87,7 +143,22 @@ router.post('/refresh-token', async (req, res) => {
   }
 });
 
-// Route: Get user details (requires authentication)
+/**
+ * @swagger
+ * /user/me:
+ *   get:
+ *     summary: Get user details
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User details
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 router.get('/me', verifyToken, async (req, res) => {
   const userId = req.user.id;
   try {

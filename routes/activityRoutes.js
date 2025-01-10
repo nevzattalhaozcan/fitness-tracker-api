@@ -4,7 +4,20 @@ const { pool } = require('../config/database');
 const verifyToken = require('../middlewares/authMiddleware');
 const logger = require('../config/logger');
 
-// Route: Get all activities
+/**
+ * @swagger
+ * /activity:
+ *   get:
+ *     summary: Get all activities
+ *     tags: [Activities]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all activities
+ *       500:
+ *         description: Server error
+ */
 router.get('/', verifyToken, async (req, res) => {
   const userId = req.user.id;
 
@@ -20,7 +33,31 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
-// Route: Get a specific activity by ID
+/**
+ * @swagger
+ * /activity/{id}:
+ *   get:
+ *     summary: Get a specific activity by ID
+ *     tags: [Activities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The activity ID
+ *     responses:
+ *       200:
+ *         description: A specific activity
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Activity not found
+ *       500:
+ *         description: Server error
+ */
 router.get('/:id', verifyToken, async (req, res) => {
   const id = parseInt(req.params.id, 10);
 
@@ -49,7 +86,43 @@ router.get('/:id', verifyToken, async (req, res) => {
   }
 });
 
-// Route: Log new activities (batch insert)
+/**
+ * @swagger
+ * /activity:
+ *   post:
+ *     summary: Log new activities (batch insert)
+ *     tags: [Activities]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               activities:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                     duration:
+ *                       type: integer
+ *                     date:
+ *                       type: string
+ *                       format: date
+ *                     calories_burned:
+ *                       type: integer
+ *     responses:
+ *       201:
+ *         description: Activities logged successfully
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Server error
+ */
 router.post('/', verifyToken, async (req, res) => {
   const { activities } = req.body; // Expect an array of activities
   const userId = req.user.id;
@@ -104,8 +177,47 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-
-// Route: Update an existing activity by ID
+/**
+ * @swagger
+ * /activity/{id}:
+ *   put:
+ *     summary: Update an existing activity by ID
+ *     tags: [Activities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The activity ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               duration:
+ *                 type: integer
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               calories_burned:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Activity updated successfully
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Activity not found
+ *       500:
+ *         description: Server error
+ */
 router.put('/:id', verifyToken, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const { name, duration, date, calories_burned } = req.body;
@@ -134,7 +246,31 @@ router.put('/:id', verifyToken, async (req, res) => {
   }
 });
 
-// Route: Delete an activity by ID
+/**
+ * @swagger
+ * /activity/{id}:
+ *   delete:
+ *     summary: Delete an activity by ID
+ *     tags: [Activities]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The activity ID
+ *     responses:
+ *       204:
+ *         description: Activity deleted successfully
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: Activity not found
+ *       500:
+ *         description: Server error
+ */
 router.delete('/:id', verifyToken, async (req, res) => {
   const id = parseInt(req.params.id, 10);
 
