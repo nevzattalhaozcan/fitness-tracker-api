@@ -4,7 +4,22 @@ const verifyToken = require('../middlewares/authMiddleware');
 const { pool } = require('../config/database');
 const logger = require('../config/logger');
 
-// Route: Get all users (restricted to admin users)
+/**
+ * @swagger
+ * /admin:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all users
+ *       403:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
 route.get('/', verifyToken, async (req, res) => {
   
   if (!req.user.isAdmin) {

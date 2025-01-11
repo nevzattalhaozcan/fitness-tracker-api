@@ -11,20 +11,33 @@ This API allows users to manage their fitness activities, workouts, and workout 
 - **Body:**
   ```json
   {
-    "name": "string",
-    "email": "string",
-    "password": "string",
-    "height": "number",
-    "weight": "number"
+    "name": "string", // required
+    "email": "string", // required
+    "password": "string", // required
+    "height": "number", // required
+    "weight": "number" // required
   }
   ```
-- **Response:**
-  ```json
-  {
-    "message": "User registered",
-    "userId": "number"
-  }
-  ```
+- **Responses:**
+  - `201 Created`
+    ```json
+    {
+      "message": "User registered",
+      "userId": "number"
+    }
+    ```
+  - `400 Bad Request`
+    ```json
+    {
+      "error": "Invalid input data"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Login user and generate a token
 - **URL:** `/api/users/login`
@@ -32,55 +45,113 @@ This API allows users to manage their fitness activities, workouts, and workout 
 - **Body:**
   ```json
   {
-    "email": "string",
-    "password": "string"
+    "email": "string", // required
+    "password": "string" // required
   }
   ```
-- **Response:**
-  ```json
-  {
-    "accessToken": "string",
-    "userRole": "string"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "accessToken": "string",
+      "userRole": "string"
+    }
+    ```
+  - `400 Bad Request`
+    ```json
+    {
+      "error": "Invalid email or password"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Create new access token with refresh token
 - **URL:** `/api/users/refresh-token`
 - **Method:** `POST`
-- **Response:**
-  ```json
-  {
-    "accessToken": "string"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "accessToken": "string"
+    }
+    ```
+  - `401 Unauthorized`
+    ```json
+    {
+      "error": "Invalid refresh token"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Get user details
 - **URL:** `/api/users/me`
 - **Method:** `GET`
-- **Response:**
-  ```json
-  {
-    "id": "number",
-    "name": "string",
-    "email": "string",
-    "height": "number",
-    "weight": "number",
-    "isAdmin": "boolean"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "id": "number",
+      "name": "string",
+      "email": "string",
+      "height": "number",
+      "weight": "number",
+      "isAdmin": "boolean"
+    }
+    ```
+  - `401 Unauthorized`
+    ```json
+    {
+      "error": "Unauthorized"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Get user stats
 - **URL:** `/api/users/stats`
 - **Method:** `GET`
 - **Query Parameters:** `timeframe` (optional: `daily`, `weekly`, `monthly`)
-- **Response:**
-  ```json
-  {
-    "total_calories": "number",
-    "avg_duration": "number",
-    "timeframe": "string"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "total_calories": "number",
+      "avg_duration": "number",
+      "timeframe": "string"
+    }
+    ```
+  - `400 Bad Request`
+    ```json
+    {
+      "error": "Invalid timeframe"
+    }
+    ```
+  - `401 Unauthorized`
+    ```json
+    {
+      "error": "Unauthorized"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Update user details
 - **URL:** `/api/users/:id`
@@ -88,21 +159,40 @@ This API allows users to manage their fitness activities, workouts, and workout 
 - **Body:**
   ```json
   {
-    "name": "string",
-    "height": "number",
-    "weight": "number"
+    "name": "string", // required
+    "height": "number", // required
+    "weight": "number" // required
   }
   ```
-- **Response:**
-  ```json
-  {
-    "id": "number",
-    "name": "string",
-    "email": "string",
-    "height": "number",
-    "weight": "number"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "id": "number",
+      "name": "string",
+      "email": "string",
+      "height": "number",
+      "weight": "number"
+    }
+    ```
+  - `400 Bad Request`
+    ```json
+    {
+      "error": "Invalid input data"
+    }
+    ```
+  - `401 Unauthorized`
+    ```json
+    {
+      "error": "Unauthorized"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Update email
 - **URL:** `/api/users/email`
@@ -110,16 +200,35 @@ This API allows users to manage their fitness activities, workouts, and workout 
 - **Body:**
   ```json
   {
-    "email": "string"
+    "email": "string" // required
   }
   ```
-- **Response:**
-  ```json
-  {
-    "id": "number",
-    "email": "string"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "id": "number",
+      "email": "string"
+    }
+    ```
+  - `400 Bad Request`
+    ```json
+    {
+      "error": "Invalid email"
+    }
+    ```
+  - `401 Unauthorized`
+    ```json
+    {
+      "error": "Unauthorized"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Update password
 - **URL:** `/api/users/password`
@@ -127,34 +236,91 @@ This API allows users to manage their fitness activities, workouts, and workout 
 - **Body:**
   ```json
   {
-    "password": "string"
+    "password": "string" // required
   }
   ```
-- **Response:**
-  ```json
-  {
-    "message": "Password updated successfully"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "message": "Password updated successfully"
+    }
+    ```
+  - `400 Bad Request`
+    ```json
+    {
+      "error": "Invalid password"
+    }
+    ```
+  - `401 Unauthorized`
+    ```json
+    {
+      "error": "Unauthorized"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Delete user
 - **URL:** `/api/users/:id`
 - **Method:** `DELETE`
-- **Response:**
-  ```json
-  {
-    "message": "User deleted successfully"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "message": "User deleted successfully"
+    }
+    ```
+  - `401 Unauthorized`
+    ```json
+    {
+      "error": "Unauthorized"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ## Workout Routes
 
 ### Get all workouts
 - **URL:** `/api/workouts`
 - **Method:** `GET`
-- **Response:**
-  ```json
-  [
+- **Responses:**
+  - `200 OK`
+    ```json
+    [
+      {
+        "id": "number",
+        "name": "string",
+        "muscle": "string",
+        "sets": "number",
+        "repeats": "number",
+        "calories_burned": "number",
+        "met_value": "number"
+      }
+    ]
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
+
+### Get a specific workout by ID
+- **URL:** `/api/workouts/:id`
+- **Method:** `GET`
+- **Responses:**
+  - `200 OK`
+    ```json
     {
       "id": "number",
       "name": "string",
@@ -164,24 +330,19 @@ This API allows users to manage their fitness activities, workouts, and workout 
       "calories_burned": "number",
       "met_value": "number"
     }
-  ]
-  ```
-
-### Get a specific workout by ID
-- **URL:** `/api/workouts/:id`
-- **Method:** `GET`
-- **Response:**
-  ```json
-  {
-    "id": "number",
-    "name": "string",
-    "muscle": "string",
-    "sets": "number",
-    "repeats": "number",
-    "calories_burned": "number",
-    "met_value": "number"
-  }
-  ```
+    ```
+  - `404 Not Found`
+    ```json
+    {
+      "error": "Workout not found"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Add a new workout
 - **URL:** `/api/workouts`
@@ -189,20 +350,33 @@ This API allows users to manage their fitness activities, workouts, and workout 
 - **Body:**
   ```json
   {
-    "name": "string",
-    "muscle": "string",
-    "sets": "number",
-    "repeats": "number",
-    "calories_burned": "number"
+    "name": "string", // required
+    "muscle": "string", // required
+    "sets": "number", // required
+    "repeats": "number", // required
+    "calories_burned": "number" // required
   }
   ```
-- **Response:**
-  ```json
-  {
-    "message": "Workout added!",
-    "workoutId": "number"
-  }
-  ```
+- **Responses:**
+  - `201 Created`
+    ```json
+    {
+      "message": "Workout added!",
+      "workoutId": "number"
+    }
+    ```
+  - `400 Bad Request`
+    ```json
+    {
+      "error": "Invalid input data"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Update an existing workout by ID
 - **URL:** `/api/workouts/:id`
@@ -210,29 +384,61 @@ This API allows users to manage their fitness activities, workouts, and workout 
 - **Body:**
   ```json
   {
-    "name": "string",
-    "muscle": "string",
-    "sets": "number",
-    "repeats": "number",
-    "calories_burned": "number"
+    "name": "string", // required
+    "muscle": "string", // required
+    "sets": "number", // required
+    "repeats": "number", // required
+    "calories_burned": "number" // required
   }
   ```
-- **Response:**
-  ```json
-  {
-    "message": "Workout updated successfully"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "message": "Workout updated successfully"
+    }
+    ```
+  - `400 Bad Request`
+    ```json
+    {
+      "error": "Invalid input data"
+    }
+    ```
+  - `404 Not Found`
+    ```json
+    {
+      "error": "Workout not found"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Delete a workout by ID
 - **URL:** `/api/workouts/:id`
 - **Method:** `DELETE`
-- **Response:**
-  ```json
-  {
-    "message": "Workout deleted successfully"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "message": "Workout deleted successfully"
+    }
+    ```
+  - `404 Not Found`
+    ```json
+    {
+      "error": "Workout not found"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ## Workout Plan Routes
 
@@ -242,66 +448,112 @@ This API allows users to manage their fitness activities, workouts, and workout 
 - **Body:**
   ```json
   {
-    "planname": "string",
-    "workout_ids": ["number"]
+    "planname": "string", // required
+    "workout_ids": ["number"] // required
   }
   ```
-- **Response:**
-  ```json
-  {
-    "message": "Workouts added to plan successfully."
-  }
-  ```
+- **Responses:**
+  - `201 Created`
+    ```json
+    {
+      "message": "Workouts added to plan successfully."
+    }
+    ```
+  - `400 Bad Request`
+    ```json
+    {
+      "error": "Invalid input data"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Fetch All Plans for a User with Workouts
 - **URL:** `/api/workout-plans`
 - **Method:** `GET`
-- **Response:**
-  ```json
-  [
+- **Responses:**
+  - `200 OK`
+    ```json
+    [
+      {
+        "planname": "string",
+        "workouts": [
+          {
+            "id": "number",
+            "name": "string",
+            "muscle": "string",
+            "sets": "number",
+            "repeats": "number",
+            "calories_burned": "number",
+            "created_by": "string"
+          }
+        ]
+      }
+    ]
+    ```
+  - `500 Internal Server Error`
+    ```json
     {
-      "planname": "string",
-      "workouts": [
-        {
-          "id": "number",
-          "name": "string",
-          "muscle": "string",
-          "sets": "number",
-          "repeats": "number",
-          "calories_burned": "number",
-          "created_by": "string"
-        }
-      ]
+      "error": "Server error"
     }
-  ]
-  ```
+    ```
 
 ### Fetch Workouts in a Specific Plan
 - **URL:** `/api/workout-plans/:planname`
 - **Method:** `GET`
-- **Response:**
-  ```json
-  [
+- **Responses:**
+  - `200 OK`
+    ```json
+    [
+      {
+        "id": "number",
+        "name": "string",
+        "muscle": "string",
+        "sets": "number",
+        "repeats": "number",
+        "calories_burned": "number"
+      }
+    ]
+    ```
+  - `404 Not Found`
+    ```json
     {
-      "id": "number",
-      "name": "string",
-      "muscle": "string",
-      "sets": "number",
-      "repeats": "number",
-      "calories_burned": "number"
+      "error": "Plan not found"
     }
-  ]
-  ```
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Delete an entire plan by planname
 - **URL:** `/api/workout-plans/:planname`
 - **Method:** `DELETE`
-- **Response:**
-  ```json
-  {
-    "message": "Plan deleted successfully"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "message": "Plan deleted successfully"
+    }
+    ```
+  - `404 Not Found`
+    ```json
+    {
+      "error": "Plan not found"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Update a plan by planname
 - **URL:** `/api/workout-plans/:planname`
@@ -309,26 +561,68 @@ This API allows users to manage their fitness activities, workouts, and workout 
 - **Body:**
   ```json
   {
-    "planname": "string",
-    "new_planname": "string",
-    "workout_ids": ["number"]
+    "planname": "string", // required
+    "new_planname": "string", // required
+    "workout_ids": ["number"] // required
   }
   ```
-- **Response:**
-  ```json
-  {
-    "message": "Plan updated successfully."
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "message": "Plan updated successfully."
+    }
+    ```
+  - `400 Bad Request`
+    ```json
+    {
+      "error": "Invalid input data"
+    }
+    ```
+  - `404 Not Found`
+    ```json
+    {
+      "error": "Plan not found"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ## Activity Routes
 
 ### Get all activities
 - **URL:** `/api/activities`
 - **Method:** `GET`
-- **Response:**
-  ```json
-  [
+- **Responses:**
+  - `200 OK`
+    ```json
+    [
+      {
+        "id": "number",
+        "name": "string",
+        "duration": "number",
+        "date": "string",
+        "calories_burned": "number"
+      }
+    ]
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
+
+### Get a specific activity by ID
+- **URL:** `/api/activities/:id`
+- **Method:** `GET`
+- **Responses:**
+  - `200 OK`
+    ```json
     {
       "id": "number",
       "name": "string",
@@ -336,22 +630,19 @@ This API allows users to manage their fitness activities, workouts, and workout 
       "date": "string",
       "calories_burned": "number"
     }
-  ]
-  ```
-
-### Get a specific activity by ID
-- **URL:** `/api/activities/:id`
-- **Method:** `GET`
-- **Response:**
-  ```json
-  {
-    "id": "number",
-    "name": "string",
-    "duration": "number",
-    "date": "string",
-    "calories_burned": "number"
-  }
-  ```
+    ```
+  - `404 Not Found`
+    ```json
+    {
+      "error": "Activity not found"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Log new activities (batch insert)
 - **URL:** `/api/activities`
@@ -361,20 +652,33 @@ This API allows users to manage their fitness activities, workouts, and workout 
   {
     "activities": [
       {
-        "name": "string",
-        "duration": "number",
-        "date": "string",
-        "calories_burned": "number"
+        "name": "string", // required
+        "duration": "number", // required
+        "date": "string", // required
+        "calories_burned": "number" // required
       }
     ]
   }
   ```
-- **Response:**
-  ```json
-  {
-    "message": "Activities logged successfully!"
-  }
-  ```
+- **Responses:**
+  - `201 Created`
+    ```json
+    {
+      "message": "Activities logged successfully!"
+    }
+    ```
+  - `400 Bad Request`
+    ```json
+    {
+      "error": "Invalid input data"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Update an existing activity by ID
 - **URL:** `/api/activities/:id`
@@ -382,46 +686,91 @@ This API allows users to manage their fitness activities, workouts, and workout 
 - **Body:**
   ```json
   {
-    "name": "string",
-    "duration": "number",
-    "date": "string",
-    "calories_burned": "number"
+    "name": "string", // required
+    "duration": "number", // required
+    "date": "string", // required
+    "calories_burned": "number" // required
   }
   ```
-- **Response:**
-  ```json
-  {
-    "message": "Activity updated successfully!"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "message": "Activity updated successfully!"
+    }
+    ```
+  - `400 Bad Request`
+    ```json
+    {
+      "error": "Invalid input data"
+    }
+    ```
+  - `404 Not Found`
+    ```json
+    {
+      "error": "Activity not found"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ### Delete an activity by ID
 - **URL:** `/api/activities/:id`
 - **Method:** `DELETE`
-- **Response:**
-  ```json
-  {
-    "message": "Activity deleted successfully"
-  }
-  ```
+- **Responses:**
+  - `200 OK`
+    ```json
+    {
+      "message": "Activity deleted successfully"
+    }
+    ```
+  - `404 Not Found`
+    ```json
+    {
+      "error": "Activity not found"
+    }
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ## Admin Routes
 
 ### Get all users (restricted to admin users)
 - **URL:** `/api/admin`
 - **Method:** `GET`
-- **Response:**
-  ```json
-  [
+- **Responses:**
+  - `200 OK`
+    ```json
+    [
+      {
+        "id": "number",
+        "name": "string",
+        "email": "string",
+        "height": "number",
+        "weight": "number"
+      }
+    ]
+    ```
+  - `403 Forbidden`
+    ```json
     {
-      "id": "number",
-      "name": "string",
-      "email": "string",
-      "height": "number",
-      "weight": "number"
+      "error": "Access denied"
     }
-  ]
-  ```
+    ```
+  - `500 Internal Server Error`
+    ```json
+    {
+      "error": "Server error"
+    }
+    ```
 
 ## Error Handling
 All routes will return appropriate HTTP status codes and error messages in case of failures.

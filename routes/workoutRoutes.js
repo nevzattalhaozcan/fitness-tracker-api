@@ -4,7 +4,20 @@ const { pool } = require('../config/database');
 const verifyToken = require('../middlewares/authMiddleware');
 const logger = require('../config/logger');
 
-// Route: Get all workouts
+/**
+ * @swagger
+ * /workout:
+ *   get:
+ *     summary: Get all workouts
+ *     tags: [Workouts]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all workouts
+ *       500:
+ *         description: Server error
+ */
 router.get('/', verifyToken, async (req, res) => {
   try {
     const result = await pool.query('SELECT id, name, muscle, sets, repeats, calories_burned, met_value FROM workouts');
@@ -15,7 +28,29 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
-// Route: Get a specific workout by ID
+/**
+ * @swagger
+ * /workout/{id}:
+ *   get:
+ *     summary: Get a specific workout by ID
+ *     tags: [Workouts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The workout ID
+ *     responses:
+ *       200:
+ *         description: A specific workout
+ *       404:
+ *         description: Workout not found
+ *       500:
+ *         description: Server error
+ */
 router.get('/:id', verifyToken, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   try {
@@ -31,7 +66,46 @@ router.get('/:id', verifyToken, async (req, res) => {
   }
 });
 
-// Route: Add a new workout (restricted to admin users)
+/**
+ * @swagger
+ * /workout:
+ *   post:
+ *     summary: Add a new workout
+ *     tags: [Workouts]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - muscle
+ *               - sets
+ *               - repeats
+ *             properties:
+ *               name:
+ *                 type: string
+ *               muscle:
+ *                 type: string
+ *               sets:
+ *                 type: integer
+ *               repeats:
+ *                 type: integer
+ *               calories_burned:
+ *                 type: integer
+ *     responses:
+ *       201:
+ *         description: Workout added
+ *       400:
+ *         description: Bad request
+ *       403:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
 router.post('/', verifyToken, async (req, res) => {
   if (!req.user.isAdmin) {
     return res.status(403).json({ message: 'Unauthorized' });
@@ -50,7 +124,50 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-// Route: Update an existing workout by ID (restricted to admin users)
+/**
+ * @swagger
+ * /workout/{id}:
+ *   put:
+ *     summary: Update an existing workout by ID
+ *     tags: [Workouts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The workout ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               muscle:
+ *                 type: string
+ *               sets:
+ *                 type: integer
+ *               repeats:
+ *                 type: integer
+ *               calories_burned:
+ *                 type: integer
+ *     responses:
+ *       200:
+ *         description: Workout updated successfully
+ *       400:
+ *         description: Bad request
+ *       403:
+ *         description: Unauthorized
+ *       404:
+ *         description: Workout not found
+ *       500:
+ *         description: Server error
+ */
 router.put('/:id', verifyToken, async (req, res) => {
   if (!req.user.isAdmin) {
     return res.status(403).json({ message: 'Unauthorized' });
@@ -69,7 +186,31 @@ router.put('/:id', verifyToken, async (req, res) => {
   }
 });
 
-// Route: Delete a workout by ID (restricted to admin users)
+/**
+ * @swagger
+ * /workout/{id}:
+ *   delete:
+ *     summary: Delete a workout by ID
+ *     tags: [Workouts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The workout ID
+ *     responses:
+ *       204:
+ *         description: Workout deleted successfully
+ *       403:
+ *         description: Unauthorized
+ *       404:
+ *         description: Workout not found
+ *       500:
+ *         description: Server error
+ */
 router.delete('/:id', verifyToken, async (req, res) => {
   if (!req.user.isAdmin) {
     return res.status(403).json({ message: 'Unauthorized' });

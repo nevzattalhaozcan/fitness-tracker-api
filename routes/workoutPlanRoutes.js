@@ -4,7 +4,38 @@ const { pool } = require('../config/database');
 const verifyToken = require('../middlewares/authMiddleware');
 const logger = require('../config/logger');
 
-// Add a Workout to a Plan
+/**
+ * @swagger
+ * /workout-plan/add:
+ *   post:
+ *     summary: Add a Workout to a Plan
+ *     tags: [Workout Plans]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - planname
+ *               - workout_ids
+ *             properties:
+ *               planname:
+ *                 type: string
+ *               workout_ids:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *     responses:
+ *       201:
+ *         description: Workouts added to plan successfully
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Failed to add workouts to plan
+ */
 router.post('/add', verifyToken, async (req, res) => {
   const { planname, workout_ids } = req.body;
   const user_id = req.user.id;
@@ -35,7 +66,20 @@ router.post('/add', verifyToken, async (req, res) => {
   }
 });
 
-// Fetch All Plans for a User with Workouts
+/**
+ * @swagger
+ * /workout-plan:
+ *   get:
+ *     summary: Fetch All Plans for a User with Workouts
+ *     tags: [Workout Plans]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all workout plans with workouts
+ *       500:
+ *         description: Failed to fetch workout plans
+ */
 router.get('/', verifyToken, async (req, res) => {
   const user_id = req.user.id;
   try {
@@ -56,7 +100,27 @@ router.get('/', verifyToken, async (req, res) => {
   }
 });
 
-// Fetch Workouts in a Specific Plan
+/**
+ * @swagger
+ * /workout-plan/{planname}:
+ *   get:
+ *     summary: Fetch Workouts in a Specific Plan
+ *     tags: [Workout Plans]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: planname
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The plan name
+ *     responses:
+ *       200:
+ *         description: List of workouts in the plan
+ *       500:
+ *         description: Failed to fetch workouts for the plan
+ */
 router.get('/:planname', verifyToken, async (req, res) => {
   const user_id = req.user.id;
   const { planname } = req.params;
@@ -69,7 +133,31 @@ router.get('/:planname', verifyToken, async (req, res) => {
   }
 });
 
-// Delete an entire plan by planname
+/**
+ * @swagger
+ * /workout-plan/{planname}:
+ *   delete:
+ *     summary: Delete an entire plan by planname
+ *     tags: [Workout Plans]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: planname
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The plan name
+ *     responses:
+ *       204:
+ *         description: Plan deleted successfully
+ *       400:
+ *         description: Plan name is required
+ *       404:
+ *         description: Plan not found
+ *       500:
+ *         description: Failed to delete plan
+ */
 router.delete('/:planname', verifyToken, async (req, res) => {
   const { planname } = req.params;
   const user_id = req.user.id;
@@ -88,7 +176,45 @@ router.delete('/:planname', verifyToken, async (req, res) => {
   }
 });
 
-// Update a plan by planname
+/**
+ * @swagger
+ * /workout-plan/{planname}:
+ *   put:
+ *     summary: Update a plan by planname
+ *     tags: [Workout Plans]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: planname
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The current plan name
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - planname
+ *               - workout_ids
+ *             properties:
+ *               planname:
+ *                 type: string
+ *               workout_ids:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *     responses:
+ *       200:
+ *         description: Plan updated successfully
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Failed to update plan
+ */
 router.put('/:planname', verifyToken, async (req, res) => {
   const { planname } = req.params;
   const user_id = req.user.id;
