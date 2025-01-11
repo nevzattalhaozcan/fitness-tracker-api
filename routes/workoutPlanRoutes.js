@@ -6,6 +6,45 @@ const logger = require('../config/logger');
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     WorkoutPlan:
+ *       type: object
+ *       properties:
+ *         planname:
+ *           type: string
+ *         workout_ids:
+ *           type: array
+ *           items:
+ *             type: integer
+ *     CreateWorkoutPlan:
+ *       type: object
+ *       required:
+ *         - planname
+ *         - workout_ids
+ *       properties:
+ *         planname:
+ *           type: string
+ *         workout_ids:
+ *           type: array
+ *           items:
+ *             type: integer
+ *     UpdateWorkoutPlan:
+ *       type: object
+ *       required:
+ *         - planname
+ *         - workout_ids
+ *       properties:
+ *         planname:
+ *           type: string
+ *         workout_ids:
+ *           type: array
+ *           items:
+ *             type: integer
+ */
+
+/**
+ * @swagger
  * /workout-plan/add:
  *   post:
  *     summary: Add a Workout to a Plan
@@ -17,17 +56,7 @@ const logger = require('../config/logger');
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - planname
- *               - workout_ids
- *             properties:
- *               planname:
- *                 type: string
- *               workout_ids:
- *                 type: array
- *                 items:
- *                   type: integer
+ *             $ref: '#/components/schemas/CreateWorkoutPlan'
  *     responses:
  *       201:
  *         description: Workouts added to plan successfully
@@ -77,6 +106,12 @@ router.post('/add', verifyToken, async (req, res) => {
  *     responses:
  *       200:
  *         description: List of all workout plans with workouts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/WorkoutPlan'
  *       500:
  *         description: Failed to fetch workout plans
  */
@@ -118,6 +153,12 @@ router.get('/', verifyToken, async (req, res) => {
  *     responses:
  *       200:
  *         description: List of workouts in the plan
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Workout'
  *       500:
  *         description: Failed to fetch workouts for the plan
  */
@@ -196,17 +237,7 @@ router.delete('/:planname', verifyToken, async (req, res) => {
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - planname
- *               - workout_ids
- *             properties:
- *               planname:
- *                 type: string
- *               workout_ids:
- *                 type: array
- *                 items:
- *                   type: integer
+ *             $ref: '#/components/schemas/UpdateWorkoutPlan'
  *     responses:
  *       200:
  *         description: Plan updated successfully

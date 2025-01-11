@@ -6,6 +6,60 @@ const logger = require('../config/logger');
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     Workout:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         muscle:
+ *           type: string
+ *         sets:
+ *           type: integer
+ *         repeats:
+ *           type: integer
+ *         calories_burned:
+ *           type: integer
+ *         met_value:
+ *           type: number
+ *     CreateWorkout:
+ *       type: object
+ *       required:
+ *         - name
+ *         - muscle
+ *         - sets
+ *         - repeats
+ *       properties:
+ *         name:
+ *           type: string
+ *         muscle:
+ *           type: string
+ *         sets:
+ *           type: integer
+ *         repeats:
+ *           type: integer
+ *         calories_burned:
+ *           type: integer
+ *     UpdateWorkout:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *         muscle:
+ *           type: string
+ *         sets:
+ *           type: integer
+ *         repeats:
+ *           type: integer
+ *         calories_burned:
+ *           type: integer
+ */
+
+/**
+ * @swagger
  * /workout:
  *   get:
  *     summary: Get all workouts
@@ -15,6 +69,12 @@ const logger = require('../config/logger');
  *     responses:
  *       200:
  *         description: List of all workouts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Workout'
  *       500:
  *         description: Server error
  */
@@ -46,6 +106,10 @@ router.get('/', verifyToken, async (req, res) => {
  *     responses:
  *       200:
  *         description: A specific workout
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Workout'
  *       404:
  *         description: Workout not found
  *       500:
@@ -79,26 +143,19 @@ router.get('/:id', verifyToken, async (req, res) => {
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *               - muscle
- *               - sets
- *               - repeats
- *             properties:
- *               name:
- *                 type: string
- *               muscle:
- *                 type: string
- *               sets:
- *                 type: integer
- *               repeats:
- *                 type: integer
- *               calories_burned:
- *                 type: integer
+ *             $ref: '#/components/schemas/CreateWorkout'
  *     responses:
  *       201:
  *         description: Workout added
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 workoutId:
+ *                   type: integer
  *       400:
  *         description: Bad request
  *       403:
@@ -144,18 +201,7 @@ router.post('/', verifyToken, async (req, res) => {
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               muscle:
- *                 type: string
- *               sets:
- *                 type: integer
- *               repeats:
- *                 type: integer
- *               calories_burned:
- *                 type: integer
+ *             $ref: '#/components/schemas/UpdateWorkout'
  *     responses:
  *       200:
  *         description: Workout updated successfully

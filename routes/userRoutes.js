@@ -10,6 +10,88 @@ require('dotenv').config();
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *         height:
+ *           type: number
+ *         weight:
+ *           type: number
+ *         isAdmin:
+ *           type: boolean
+ *     RegisterUser:
+ *       type: object
+ *       required:
+ *         - name
+ *         - email
+ *         - password
+ *         - height
+ *         - weight
+ *       properties:
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *         password:
+ *           type: string
+ *         height:
+ *           type: number
+ *         weight:
+ *           type: number
+ *     LoginUser:
+ *       type: object
+ *       required:
+ *         - email
+ *         - password
+ *       properties:
+ *         email:
+ *           type: string
+ *         password:
+ *           type: string
+ *     UpdateUser:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *         height:
+ *           type: number
+ *         weight:
+ *           type: number
+ *     UpdateEmail:
+ *       type: object
+ *       required:
+ *         - email
+ *       properties:
+ *         email:
+ *           type: string
+ *     UpdatePassword:
+ *       type: object
+ *       required:
+ *         - password
+ *       properties:
+ *         password:
+ *           type: string
+ *     UserStats:
+ *       type: object
+ *       properties:
+ *         total_calories:
+ *           type: integer
+ *         avg_duration:
+ *           type: number
+ *         timeframe:
+ *           type: string
+ */
+
+/**
+ * @swagger
  * /user/register:
  *   post:
  *     summary: Register a new user
@@ -19,21 +101,19 @@ require('dotenv').config();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *               height:
- *                 type: number
- *               weight:
- *                 type: number
+ *             $ref: '#/components/schemas/RegisterUser'
  *     responses:
  *       201:
  *         description: User registered
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 userId:
+ *                   type: integer
  *       400:
  *         description: Bad request
  *       500:
@@ -69,15 +149,19 @@ router.post('/register', async (req, res) => {
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *               password:
- *                 type: string
+ *             $ref: '#/components/schemas/LoginUser'
  *     responses:
  *       200:
  *         description: User logged in
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *                 userRole:
+ *                   type: string
  *       400:
  *         description: Email and password are required
  *       401:
@@ -154,6 +238,10 @@ router.post('/refresh-token', async (req, res) => {
  *     responses:
  *       200:
  *         description: User details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       404:
  *         description: User not found
  *       500:
@@ -173,7 +261,31 @@ router.get('/me', verifyToken, async (req, res) => {
   }
 });
 
-// Route: Get stats for the user, including total calories burned and average workout duration
+/**
+ * @swagger
+ * /user/stats:
+ *   get:
+ *     summary: Get user stats
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: timeframe
+ *         schema:
+ *           type: string
+ *           enum: [daily, weekly, monthly]
+ *         description: Timeframe for stats
+ *     responses:
+ *       200:
+ *         description: User stats
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserStats'
+ *       500:
+ *         description: Server error
+ */
 router.get('/stats', verifyToken, async (req, res) => {
   const userId = req.user.id;
   const { timeframe } = req.query;
@@ -209,7 +321,43 @@ router.get('/stats', verifyToken, async (req, res) => {
   }
 });
 
-// Route: Update user details
+/**
+ * @swagger
+ * /user/{id}:
+ *   put:
+ *     summary: Update user details
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The user ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateUser'
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Bad request
+ *       403:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 router.put('/:id', verifyToken, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const userId = req.user.id;
@@ -229,7 +377,32 @@ router.put('/:id', verifyToken, async (req, res) => {
   }
 });
 
-// Route: Update email
+/**
+ * @swagger
+ * /user/email:
+ *   patch:
+ *     summary: Update user email
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateEmail'
+ *     responses:
+ *       200:
+ *         description: Email updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Server error
+ */
 router.patch('/email', verifyToken, async (req, res) => {
   const userId = req.user.id;
   const { email } = req.body;
@@ -252,7 +425,28 @@ router.patch('/email', verifyToken, async (req, res) => {
   }
 });
 
-// Route: Update password
+/**
+ * @swagger
+ * /user/password:
+ *   patch:
+ *     summary: Update user password
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdatePassword'
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *       400:
+ *         description: Bad request
+ *       500:
+ *         description: Server error
+ */
 router.patch('/password', verifyToken, async (req, res) => {
   const userId = req.user.id;
   const { password } = req.body;
@@ -274,7 +468,31 @@ router.patch('/password', verifyToken, async (req, res) => {
   }
 });
 
-// Route: Delete user
+/**
+ * @swagger
+ * /user/{id}:
+ *   delete:
+ *     summary: Delete user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The user ID
+ *     responses:
+ *       204:
+ *         description: User deleted successfully
+ *       403:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
 router.delete('/:id', verifyToken, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const userId = req.user.id;
