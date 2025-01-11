@@ -13,6 +13,20 @@ const options = {
         url: 'https://fitness-tracker-api-x3cg.onrender.com',
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
   apis: ['./routes/*.js'], // Corrected path to the API docs
 };
