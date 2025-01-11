@@ -26,7 +26,7 @@ app.use(cookieParser());
 app.use(generalLimiter);
 app.use(helmet());
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
 // Error-handling middleware
 app.use((err, req, res, next) => {
