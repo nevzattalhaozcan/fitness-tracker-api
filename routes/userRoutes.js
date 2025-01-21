@@ -77,7 +77,6 @@ require('dotenv').config();
  *       required:
  *         - password
  *       properties:
- *         password:
  *           type: string
  *     UserStats:
  *       type: object
@@ -323,62 +322,6 @@ router.get('/stats', verifyToken, async (req, res) => {
 
 /**
  * @swagger
- * /user/{id}:
- *   put:
- *     summary: Update user details
- *     tags: [Users]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: The user ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/UpdateUser'
- *     responses:
- *       200:
- *         description: User updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       400:
- *         description: Bad request
- *       403:
- *         description: Unauthorized
- *       404:
- *         description: User not found
- *       500:
- *         description: Server error
- */
-router.put('/:id', verifyToken, async (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  const userId = req.user.id;
-  const { name, height, weight } = req.body;
-  try {
-    if (id !== userId && !req.user.isAdmin) {
-      return res.status(403).json({ message: 'Unauthorized' });
-    }
-    const result = await pool.query('UPDATE users SET name = $1, height = $2, weight = $3 WHERE id = $4 RETURNING id, name, email, height, weight', [name, height, weight, id]);
-    if (result.rowCount === 0) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.json(result.rows[0]);
-  } catch (error) {
-    logger.error(error.stack || error.message || error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-/**
- * @swagger
  * /user/email:
  *   patch:
  *     summary: Update user email
@@ -462,6 +405,215 @@ router.patch('/password', verifyToken, async (req, res) => {
     const result = await pool.query('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, userId]);
 
     res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    logger.error(error.stack || error.message || error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.post('/attendance', verifyToken, async (req, res) => {
+  const userId = req.user.id;
+  const { date, status } = req.body;
+  
+  if (!date || !status) {
+    return res.status(400).json({ message: 'Date and status are required.' });
+  }
+  const formattedDate = new Date(date).toISOString().split('T')[0];
+
+  if (status !== 'present' && status !== 'absent') {
+    return res.status(400).json({ message: 'Invalid status.' });
+  }
+
+  try {
+    // Query to get attendance records for the user
+    const checkResult = await pool.query(`
+      SELECT jsonb_array_elements(attendance)->>'date' as logged_date
+      FROM users 
+      WHERE id = $1 AND attendance IS NOT NULL
+    `, [userId]);
+
+    // Check if the date already exists in the attendance records
+    const dateExists = checkResult.rows.some(row => row.logged_date === formattedDate);
+    if (dateExists) {
+      return res.status(400).json({ message: 'Attendance for this day is already logged' });
+    }
+
+    // Initialize attendance array if null
+    await pool.query(`
+      UPDATE users 
+      SET attendance = COALESCE(attendance, '[]'::jsonb) 
+      WHERE id = $1 AND attendance IS NULL
+    `, [userId]);
+
+    // Add new attendance record
+    await pool.query(`
+      UPDATE users 
+      SET attendance = attendance || $1::jsonb
+      WHERE id = $2
+    `, [JSON.stringify({ date: formattedDate, status }), userId]);
+
+    res.status(201).json({ message: 'Attendance added successfully' });
+  } catch (error) {
+    logger.error(error.stack || error.message || error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.get('/attendance', verifyToken, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const result = await pool.query('SELECT attendance FROM users WHERE id = $1', [userId]);
+    res.json(result.rows[0].attendance || []);
+  } catch (error) {
+    logger.error(error.stack || error.message || error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.put('/attendance', verifyToken, async (req, res) => {
+  const userId = req.user.id;
+  const { date, status } = req.body;
+
+  if (!date || !status) {
+    return res.status(400).json({ message: 'Date and status are required.' });
+  }
+  const formattedDate = new Date(date).toISOString().split('T')[0];
+
+  if (status !== 'present' && status !== 'absent') {
+    return res.status(400).json({ message: 'Invalid status.' });
+  }
+
+  try {
+    // First check if the attendance record exists
+    const checkResult = await pool.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM users,
+        jsonb_array_elements(COALESCE(attendance, '[]'::jsonb)) att
+        WHERE id = $1 AND att->>'date' = $2
+      ) as exists
+    `, [userId, formattedDate]);
+
+    if (!checkResult.rows[0].exists) {
+      return res.status(404).json({ message: 'No attendance record found for this date' });
+    }
+
+    // If exists, proceed with update
+    await pool.query(`
+      UPDATE users 
+      SET attendance = (
+        SELECT jsonb_agg(
+          CASE
+            WHEN att->>'date' = $1 THEN 
+              jsonb_build_object('date', $1::text, 'status', $2::text)
+            ELSE att
+          END
+        )
+        FROM jsonb_array_elements(COALESCE(attendance, '[]'::jsonb)) att
+      )
+      WHERE id = $3
+      RETURNING attendance
+    `, [formattedDate, status, userId]);
+
+    res.json({ message: 'Attendance updated successfully' });
+  } catch (error) {
+    logger.error(error.stack || error.message || error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.delete('/attendance', verifyToken, async (req, res) => {
+  const userId = req.user.id;
+  const { date } = req.body;
+
+  if (!date) {
+    return res.status(400).json({ message: 'Date is required.' });
+  }
+  const formattedDate = new Date(date).toISOString().split('T')[0];
+
+  try {
+    // First check if the attendance record exists
+    const checkResult = await pool.query(`
+      SELECT EXISTS (
+        SELECT 1
+        FROM users,
+        jsonb_array_elements(COALESCE(attendance, '[]'::jsonb)) att
+        WHERE id = $1 AND att->>'date' = $2
+      ) as exists
+    `, [userId, formattedDate]);
+
+    if (!checkResult.rows[0].exists) {
+      return res.status(404).json({ message: 'No attendance record found for this date' });
+    }
+
+    // If exists, proceed with deletion
+    await pool.query(`
+      UPDATE users SET attendance = (
+        SELECT jsonb_agg(a)
+        FROM jsonb_array_elements(attendance) a
+        WHERE a->>'date' <> $1 -- Delete entry with matching date
+      )
+      WHERE id = $2
+    `, [formattedDate, userId]);
+
+    res.status(204).end();
+  } catch (error) {
+    logger.error(error.stack || error.message || error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+/**
+ * @swagger
+ * /user/{id}:
+ *   put:
+ *     summary: Update user details
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The user ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateUser'
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Bad request
+ *       403:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Server error
+ */
+router.put('/:id', verifyToken, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  const userId = req.user.id;
+  const { name, height, weight } = req.body;
+  try {
+    if (id !== userId && !req.user.isAdmin) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+    const result = await pool.query('UPDATE users SET name = $1, height = $2, weight = $3 WHERE id = $4 RETURNING id, name, email, height, weight', [name, height, weight, id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(result.rows[0]);
   } catch (error) {
     logger.error(error.stack || error.message || error);
     res.status(500).json({ message: 'Server error' });
