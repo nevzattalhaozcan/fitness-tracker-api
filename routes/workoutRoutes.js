@@ -173,6 +173,13 @@ router.post('/', verifyToken, async (req, res) => {
     return res.status(400).json({ message: 'Name, muscle, sets, and repeats are required.' });
   }
   try {
+    // First check if workout with same name exists
+    const existingWorkout = await pool.query('SELECT id FROM workouts WHERE name = $1', [name]);
+    if (existingWorkout.rows.length > 0) {
+      return res.status(409).json({ message: 'Workout with this name already exists' });
+    }
+
+    // If no duplicate, proceed with insertion
     const result = await pool.query('INSERT INTO workouts (name, muscle, sets, repeats, calories_burned, user_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id', [name, muscle, sets, repeats, calories_burned, userId]);
     res.status(201).json({ message: 'Workout added!', workoutId: result.rows[0].id });
   } catch (error) {
