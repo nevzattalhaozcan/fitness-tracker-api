@@ -433,6 +433,47 @@ router.patch('/password', verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /user/attendance:
+ *   post:
+ *     summary: Add new attendance record
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - date
+ *               - status
+ *             properties:
+ *               date:
+ *                 type: string
+ *                 format: date
+ *                 description: The date for attendance in YYYY-MM-DD format
+ *               status:
+ *                 type: string
+ *                 enum: [present, absent]
+ *                 description: Attendance status for the day
+ *     responses:
+ *       201:
+ *         description: Attendance added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Bad request - Invalid input or duplicate attendance
+ *       500:
+ *         description: Server error
+ */
 router.post('/attendance', verifyToken, async (req, res) => {
   const userId = req.user.id;
   const { date, status } = req.body;
