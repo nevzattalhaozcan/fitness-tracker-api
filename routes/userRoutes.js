@@ -202,7 +202,29 @@ function generateRefreshToken(user) {
   return jwt.sign({ id: user.id, email: user.email, isAdmin: user.isAdmin }, process.env.SECRET_KEY, { expiresIn: '7d' });
 }
 
-// Route: Create new access token with refresh token
+/**
+ * @swagger
+ * /user/refresh-token:
+ *   post:
+ *     summary: Refresh access token using refresh token
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: New access token generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 accessToken:
+ *                   type: string
+ *       401:
+ *         description: Refresh token is required
+ *       403:
+ *         description: Invalid or expired refresh token
+ *       500:
+ *         description: Server error
+ */
 router.post('/refresh-token', async (req, res) => {
   const { refreshToken } = req.cookies;
   if (!refreshToken) {
@@ -425,6 +447,14 @@ router.post('/attendance', verifyToken, async (req, res) => {
   }
 
   try {
+    if (!date || !status) {
+      return res.status(400).json({ message: 'Date and status are required.' });
+    }
+    const formattedDate = new Date(date).toISOString().split('T')[0];
+
+    if (status !== 'present' && status !== 'absent') {
+      return res.status(400).json({ message: 'Invalid status.' });
+    }
     // Query to get attendance records for the user
     const checkResult = await pool.query(`
       SELECT jsonb_array_elements(attendance)->>'date' as logged_date
@@ -459,6 +489,33 @@ router.post('/attendance', verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /user/attendance:
+ *   get:
+ *     summary: Get user's attendance records
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of attendance records
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   date:
+ *                     type: string
+ *                     format: date
+ *                   status:
+ *                     type: string
+ *                     enum: [present, absent]
+ *       500:
+ *         description: Server error
+ */
 router.get('/attendance', verifyToken, async (req, res) => {
   const userId = req.user.id;
 
@@ -471,6 +528,40 @@ router.get('/attendance', verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /user/attendance:
+ *   put:
+ *     summary: Update attendance record
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - date
+ *               - status
+ *             properties:
+ *               date:
+ *                 type: string
+ *                 format: date
+ *               status:
+ *                 type: string
+ *                 enum: [present, absent]
+ *     responses:
+ *       200:
+ *         description: Attendance updated successfully
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: No attendance record found for this date
+ *       500:
+ *         description: Server error
+ */
 router.put('/attendance', verifyToken, async (req, res) => {
   const userId = req.user.id;
   const { date, status } = req.body;
@@ -523,6 +614,36 @@ router.put('/attendance', verifyToken, async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /user/attendance:
+ *   delete:
+ *     summary: Delete attendance record
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - date
+ *             properties:
+ *               date:
+ *                 type: string
+ *                 format: date
+ *     responses:
+ *       204:
+ *         description: Attendance record deleted successfully
+ *       400:
+ *         description: Bad request
+ *       404:
+ *         description: No attendance record found for this date
+ *       500:
+ *         description: Server error
+ */
 router.delete('/attendance', verifyToken, async (req, res) => {
   const userId = req.user.id;
   const { date } = req.body;
