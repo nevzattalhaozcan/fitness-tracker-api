@@ -748,7 +748,24 @@ router.delete('/attendance', verifyToken, async (req, res) => {
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/UpdateUser'
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               surname:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               address:
+ *                 type: string
+ *               city:
+ *                 type: string
+ *               country:
+ *                 type: string
+ *               height:
+ *                 type: number
+ *               weight:
+ *                 type: number
  *     responses:
  *       200:
  *         description: User updated successfully
