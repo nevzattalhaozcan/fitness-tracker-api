@@ -771,7 +771,7 @@ router.put('/:id', verifyToken, async (req, res) => {
     if (id !== userId && !req.user.isAdmin) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
-    const result = await pool.query('UPDATE users SET name = $1, height = $2, weight = $3, surname = $4, phone = $5, address = $6, city = $7, country = $8 WHERE id = $9 RETURNING id, name, email, height, weight', 
+    const result = await pool.query('UPDATE users SET name = $1, height = $2, weight = $3, surname = $4, phone = $5, address = $6, city = $7, country = $8 WHERE id = $9 RETURNING id, name, surname, phone, address, city, country, email, height, weight', 
       [name, height, weight, surname, phone, address, city, country, id]);
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'User not found' });
