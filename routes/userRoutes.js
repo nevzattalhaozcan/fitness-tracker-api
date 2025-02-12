@@ -77,7 +77,9 @@ require('dotenv').config();
  *       required:
  *         - password
  *       properties:
+ *         password:
  *           type: string
+ *           description: New password for the user
  *     UserStats:
  *       type: object
  *       properties:
