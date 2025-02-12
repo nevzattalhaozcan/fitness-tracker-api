@@ -271,7 +271,7 @@ router.post('/refresh-token', async (req, res) => {
 router.get('/me', verifyToken, async (req, res) => {
   const userId = req.user.id;
   try {
-    const result = await pool.query('SELECT id, name, email, height, weight, "isAdmin" FROM users WHERE id = $1', [userId]);
+    const result = await pool.query('SELECT id, name, surname, email, phone, address, city, country, height, weight, "isAdmin" FROM users WHERE id = $1', [userId]);
     if (result.rows.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -766,12 +766,13 @@ router.delete('/attendance', verifyToken, async (req, res) => {
 router.put('/:id', verifyToken, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   const userId = req.user.id;
-  const { name, height, weight } = req.body;
+  const { name, surname, phone, address, city, country, height, weight } = req.body;
   try {
     if (id !== userId && !req.user.isAdmin) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
-    const result = await pool.query('UPDATE users SET name = $1, height = $2, weight = $3 WHERE id = $4 RETURNING id, name, email, height, weight', [name, height, weight, id]);
+    const result = await pool.query('UPDATE users SET name = $1, height = $2, weight = $3, surname = $4, phone = $5, address = $6, city = $7, country = $8 WHERE id = $9 RETURNING id, name, email, height, weight', 
+      [name, height, weight, surname, phone, address, city, country, id]);
     if (result.rowCount === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
